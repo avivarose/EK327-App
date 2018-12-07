@@ -35,6 +35,7 @@ int main()
         game1.setc(randc); //set column
         game1.setr(randr); //set row
         game1.setnum(usedNum); //set number
+        delay(1000);
         game1.move(); //Computer moves
         //Check for win
         game1.diagonalCheck(); //Check diagonals for win
@@ -73,6 +74,7 @@ int main()
         game2.setc(randc); //set column
         game2.setr(randr); //set row
         game2.setnum(usedNum); //set number
+        delay(1000);
         game2.move(); //Computer moves
         //Check for win
         game2.diagonalCheck(); //Check diagonals for win
@@ -118,6 +120,7 @@ int main()
         game3.setc(randc); //set column
         game3.setr(randr); //set row
         game3.setnum(usedNum); //set number
+        delay(1000);
         game3.move(); //Computer moves
         //Check for win
         game3.diagonalCheck(); //Check diagonals for win
