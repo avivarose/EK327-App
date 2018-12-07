@@ -32,6 +32,7 @@ int main()
         game1.setc(randc); //set column
         game1.setr(randr); //set row
         game1.setnum(usedNum); //set number
+        delay(1000)
         game1.move(); //Computer moves
         //Check for win
         game1.diagonalCheck(); //Check diagonals for win
