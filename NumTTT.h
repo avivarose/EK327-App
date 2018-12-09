@@ -5,9 +5,9 @@ class NumTTT
 {
 	public:
 		NumTTT();
-		bool horizontalCheck(); //Checks for win along horizontals
-		bool verticalCheck(); //Checks for win along verticals
-		bool diagonalCheck(); //Checks for win along diagonals
+		int horizontalCheck(int last); //Checks for win along horizontals
+		int verticalCheck(int last); //Checks for win along verticals
+		int diagonalCheck(int last); //Checks for win along diagonals
 		void move();
         int getr(); //Returns row for value to be placed
         void setr(int r); //Sets row for value to be placed
@@ -23,7 +23,7 @@ class NumTTT
         int r; //Row number
         int c; //Column number
         int winner; //Player 1 is odds, Player 2 is evens
-        bool testforend; //Boolean value to test if game has been won
+        int testforend = 0; //Boolean value to test if game has been won
 
 	private:
         int size; //Size of array of used numbers

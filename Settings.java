@@ -41,6 +41,8 @@ public class Settings extends Activity implements OnClickListener{
                 Intent gameScreen = new Intent(Settings.this, Game.class);
                 gameScreen.putExtra("mode",playerMode);
                 gameScreen.putExtra("bo",bestOf);
+                String score = "0 : 0";
+                gameScreen.putExtra("score",score);
                 startActivity(gameScreen);
                 break;
             }
@@ -49,6 +51,8 @@ public class Settings extends Activity implements OnClickListener{
                 Intent gameScreen = new Intent(Settings.this,Game.class);
                 gameScreen.putExtra("mode",playerMode);
                 gameScreen.putExtra("bo",bestOf);
+                String score = "0 : 0";
+                gameScreen.putExtra("score",score);
                 startActivity(gameScreen);
                 break;
             }

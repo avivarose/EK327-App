@@ -1,4 +1,5 @@
 #include "NumTTT.h"
+
 using namespace std;
 
 //Class implemendation for numerical tic-tac-toe
@@ -59,14 +60,14 @@ void NumTTT::setnum(int num) //Sets value to be placed on board
 }
 
 
-bool NumTTT::horizontalCheck()
+int NumTTT::horizontalCheck(int last)
 {
 	for (int i = 0; i < 3; i ++)
 	{
 		if (((board[i][0]+board[i][1]+board[i][2])==15)&&(board[i][0]!=0 && board[i][1]!=0 && board[i][2] != 0))
 			{
-			this -> testforend = true;
-            if (num%2 == 0)
+			this -> testforend = 1;
+            if (last%2 == 0)
             {
                 winner = 2;
             }
@@ -77,17 +78,17 @@ bool NumTTT::horizontalCheck()
 			return this -> testforend;
 			}
 	}
-return false;
+return 0;
 }
 
-bool NumTTT::verticalCheck()
+int NumTTT::verticalCheck(int last)
 {
 	for (int i = 0; i < 3; i ++)
 	{
 		if (((board[0][i]+board[1][i]+board[2][i])==15)&&(board[0][i]!=0 && board[1][i]!=0 && board[2][i] != 0))
 			{
-			this -> testforend = true;
-            if (num%2 == 0)
+			this -> testforend = 1;
+            if (last%2 == 0)
             {
                 winner = 2;
             }
@@ -98,15 +99,15 @@ bool NumTTT::verticalCheck()
 			return this -> testforend;
 			}
 	}
-return this -> testforend;
+    return 0;
 }
 
-bool NumTTT::diagonalCheck()
+int NumTTT::diagonalCheck( int last)
 {
 	if (((board[0][0]+board[1][1]+board[2][2])==15)&&(board[0][0]!=0 && board[1][1]!=0 && board[2][2] != 0))
 			{
-			this -> testforend = true;
-            if (num%2 == 0)
+			this -> testforend = 1;
+            if (last%2 == 0)
             {
                 winner = 2;
             }
@@ -118,8 +119,8 @@ bool NumTTT::diagonalCheck()
 			}
 	else if (((board[0][2]+board[1][1]+board[2][0])==15)&&(board[0][2]!=0 && board[1][1]!=0 && board[2][0] != 0))
 			{
-			this -> testforend = true;
-            if (num%2 == 0)
+			this -> testforend = 1;
+            if (last%2 == 0)
             {
                 winner = 2;
             }

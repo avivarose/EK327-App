@@ -14,8 +14,8 @@ public class Results extends Activity implements OnClickListener{
     private Button playAgain;
     private int playerMode;
     private int bestOf;
-    private TextView askingPrompt;
     private String whoWon;
+    private String scoreResult;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -24,11 +24,13 @@ public class Results extends Activity implements OnClickListener{
         playerMode = myIntent.getIntExtra("mode",0);
         bestOf = myIntent.getIntExtra("bo", 0);
         whoWon = myIntent.getStringExtra("winner");
-        backToMenu = (Button) findViewById(R.id.buttonRes1);
-        playAgain = (Button) findViewById(R.id.buttonRes2);
+        scoreResult = myIntent.getStringExtra("score");
+        backToMenu = (Button) findViewById(R.id.button26);
+        playAgain = (Button) findViewById(R.id.button25);
         backToMenu.setOnClickListener(this);
         playAgain.setOnClickListener(this);
-        askingPrompt = (TextView)findViewById(R.id.textView);
+        winner = findViewById(R.id.editText3);
+        winner.setText(whoWon);
 
 
     }
@@ -37,17 +39,20 @@ public class Results extends Activity implements OnClickListener{
 
         switch (v.getId()) {
 
-            case R.id.buttonRes1: {
+            case R.id.button26: {
               //returns to main menu
                 Intent gameScreen = new Intent(Results.this, MainActivity.class);
                 startActivity(gameScreen);
+                break;
             }
-            case R.id.buttonRes2: {
+            case R.id.button25: {
                 // starts another game right away with same setup
                 Intent gameScreen = new Intent(Results.this, Game.class);
                 gameScreen.putExtra("mode",playerMode);
                 gameScreen.putExtra("bo",bestOf);
+                gameScreen.putExtra("score",scoreResult);
                 startActivity(gameScreen);
+                break;
             }
             default: {
                 break;
