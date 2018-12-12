@@ -15,6 +15,7 @@ public class Settings extends Activity implements OnClickListener{
     private int playerMode;
     private int bestOf;
     private TextView askingPrompt;
+    private int p1Score,p2Score;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -29,6 +30,8 @@ public class Settings extends Activity implements OnClickListener{
         bo3.setOnClickListener(this);
         back.setOnClickListener(this);
         askingPrompt = (TextView)findViewById(R.id.textView);
+        p1Score = 0;
+        p2Score = 0;
 
     }
 
@@ -43,6 +46,8 @@ public class Settings extends Activity implements OnClickListener{
                 gameScreen.putExtra("bo",bestOf);
                 String score = "0 : 0";
                 gameScreen.putExtra("score",score);
+                gameScreen.putExtra("p1",p1Score);
+                gameScreen.putExtra("p2",p2Score);
                 startActivity(gameScreen);
                 break;
             }
@@ -53,6 +58,8 @@ public class Settings extends Activity implements OnClickListener{
                 gameScreen.putExtra("bo",bestOf);
                 String score = "0 : 0";
                 gameScreen.putExtra("score",score);
+                gameScreen.putExtra("p1",p1Score);
+                gameScreen.putExtra("p2",p2Score);
                 startActivity(gameScreen);
                 break;
             }

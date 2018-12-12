@@ -7,6 +7,7 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import java.util.Random;
 public class Game extends Activity implements OnClickListener {
 
     private EditText currentScore; //for displaying currentScore on top
@@ -46,6 +47,8 @@ public class Game extends Activity implements OnClickListener {
     private int drawCheck;
     private int end;
     private int last = 0;
+    private int numAITurns;
+
 
     static{
         System.loadLibrary("native-lib");
@@ -56,10 +59,12 @@ public class Game extends Activity implements OnClickListener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
         Intent myIntent = getIntent();
-        //digging up game setup info from previous screen
+        //digging up game setup info from previous screen or result screen
         numHumanPlayers = myIntent.getIntExtra("mode", 0);
         gameMode = myIntent.getIntExtra("bo", 0);
         String scoreTitle = myIntent.getStringExtra("score");
+        p1Score = myIntent.getIntExtra("p1",0);
+        p2Score = myIntent.getIntExtra("p2",0);
         //gamestatus keeps track of whose turn it is internally
         gameStatus = 1;
         //pressedNumber keeps track of whether number was pressed previously for click/unclick function
@@ -108,11 +113,13 @@ public class Game extends Activity implements OnClickListener {
         returnMenu.setOnClickListener(this);
         //setting up score and turn textboxes
         currentScore = findViewById(R.id.editText);
-        currentScore.setText(scoreTitle);
+        currentScore.setText(""+p1Score +" : "+p2Score);
         turnKeeper = "Player 1's Turn";
         whoseTurn =  findViewById(R.id.editText2);
         whoseTurn.setText(turnKeeper);
-
+        whoseTurn.setEnabled(false); // disables textbox from being editable
+        currentScore.setEnabled(false);
+        numAITurns = 0;
 
     }
 
@@ -271,7 +278,7 @@ public class Game extends Activity implements OnClickListener {
                 drawCheck+= pressedNumber;
                 processBoard();
                 removeButton(pressedNumber);
-                 end = checkEnd(numOne,numTwo,numThree,numFour,numFive,numSix,numSeven,numEight,numNine, last);
+                end = checkEnd(numOne,numTwo,numThree,numFour,numFive,numSix,numSeven,numEight,numNine, last);
                     if(end == 1)
                     {
                         Intent toResult = new Intent(Game.this, Results.class);
@@ -279,7 +286,20 @@ public class Game extends Activity implements OnClickListener {
                         toResult.putExtra("mode",numHumanPlayers);
                         toResult.putExtra("bo", gameMode);
                         toResult.putExtra("winner","Player"+ winnerResult+ " won!");
+                        toResult.putExtra("score","1 : 0");
+                        if(gameStatus == 1)
+                        {
+                            toResult.putExtra("p1",p1Score+1);
+                            toResult.putExtra("p2",p2Score);
+                        }
+                        else
+                        {
+                            toResult.putExtra("p1",p1Score);
+                            toResult.putExtra("p2",p2Score+1);
+                        }
                         startActivity(toResult);
+                        if(numHumanPlayers == 1)
+                            break;
                     }
                     else
                     {
@@ -288,13 +308,23 @@ public class Game extends Activity implements OnClickListener {
                             toResult.putExtra("mode",numHumanPlayers);
                             toResult.putExtra("bo",gameMode);
                             toResult.putExtra("winner", "Draw");
+                            toResult.putExtra("score","0 : 0");
+                            toResult.putExtra("p1",p1Score);
+                            toResult.putExtra("p2",p2Score);
                             startActivity(toResult);
                         }
                     }
+                    buttonSelectTracker = "Choose a number";
+                    whoseTurn.setText(buttonSelectTracker);
                     if(gameStatus == 1)
                         gameStatus = 2;
                     else
                         gameStatus = 1;
+                    if(gameStatus == 2 && numHumanPlayers == 1&&numAITurns<4)//runs only if single player
+                    {
+                        processAITurn();
+                    }
+
                 }
                 else
                 {
@@ -310,6 +340,7 @@ public class Game extends Activity implements OnClickListener {
                     }
 
                 }
+                pressedNumber = 30;
                 break;
             }
             case R.id.button20: {//Row2Col1
@@ -330,7 +361,20 @@ public class Game extends Activity implements OnClickListener {
                         toResult.putExtra("mode",numHumanPlayers);
                         toResult.putExtra("bo", gameMode);
                         toResult.putExtra("winner","Player"+ winnerResult+ " won!");
+                        toResult.putExtra("score","1 : 0");
+                        if(gameStatus == 1)
+                        {
+                            toResult.putExtra("p1",p1Score+1);
+                            toResult.putExtra("p2",p2Score);
+                        }
+                        else
+                        {
+                            toResult.putExtra("p1",p1Score);
+                            toResult.putExtra("p2",p2Score+1);
+                        }
                         startActivity(toResult);
+                        if(numHumanPlayers == 1)
+                            break;
                     }
                     else
                     {
@@ -339,13 +383,22 @@ public class Game extends Activity implements OnClickListener {
                             toResult.putExtra("mode",numHumanPlayers);
                             toResult.putExtra("bo",gameMode);
                             toResult.putExtra("winner", "Draw");
+                            toResult.putExtra("score","0 : 0");
+                            toResult.putExtra("p1",p1Score);
+                            toResult.putExtra("p2",p2Score);
                             startActivity(toResult);
                         }
                     }
+                    buttonSelectTracker = "Choose a number";
+                    whoseTurn.setText(buttonSelectTracker);
                     if(gameStatus == 1)
                         gameStatus = 2;
                     else
                         gameStatus = 1;
+                    if(gameStatus == 2 && numHumanPlayers == 1&&numAITurns <4)//runs only if single player
+                    {
+                        processAITurn();
+                    }
                 }
                 else
                 {
@@ -361,6 +414,7 @@ public class Game extends Activity implements OnClickListener {
                     }
 
                 }
+                pressedNumber = 30;
                 break;
             }
             case R.id.button21: {//Row3Col1
@@ -382,7 +436,19 @@ public class Game extends Activity implements OnClickListener {
                         toResult.putExtra("bo", gameMode);
                         toResult.putExtra("score","1 : 0");
                         toResult.putExtra("winner","Player"+ winnerResult+ " won!");
+                        if(gameStatus == 1)
+                        {
+                            toResult.putExtra("p1",p1Score+1);
+                            toResult.putExtra("p2",p2Score);
+                        }
+                        else
+                        {
+                            toResult.putExtra("p1",p1Score);
+                            toResult.putExtra("p2",p2Score+1);
+                        }
                         startActivity(toResult);
+                        if(numHumanPlayers == 1)
+                            break;
                     }
                     else
                     {
@@ -390,15 +456,23 @@ public class Game extends Activity implements OnClickListener {
                             Intent toResult = new Intent(Game.this, Results.class);
                             toResult.putExtra("mode",numHumanPlayers);
                             toResult.putExtra("bo",gameMode);
-                            toResult.putExtra("score","1 : 0");
+                            toResult.putExtra("score","0 : 0");
                             toResult.putExtra("winner", "Draw");
+                            toResult.putExtra("p1",p1Score);
+                            toResult.putExtra("p2",p2Score);
                             startActivity(toResult);
                         }
                     }
+                    buttonSelectTracker = "Choose a number";
+                    whoseTurn.setText(buttonSelectTracker);
                     if(gameStatus == 1)
                         gameStatus = 2;
                     else
                         gameStatus = 1;
+                    if(gameStatus == 2 && numHumanPlayers == 1&&numAITurns <4)//runs only if single player
+                    {
+                        processAITurn();
+                    }
                 }
                 else
                 {
@@ -414,6 +488,7 @@ public class Game extends Activity implements OnClickListener {
                     }
 
                 }
+                pressedNumber = 30;
                 break;
             }
             case R.id.button16: {//Ro1Col2
@@ -434,8 +509,20 @@ public class Game extends Activity implements OnClickListener {
                         toResult.putExtra("mode",numHumanPlayers);
                         toResult.putExtra("bo", gameMode);
                         toResult.putExtra("score","1 : 0");
+                        if(gameStatus == 1)
+                        {
+                            toResult.putExtra("p1",p1Score+1);
+                            toResult.putExtra("p2",p2Score);
+                        }
+                        else
+                        {
+                            toResult.putExtra("p1",p1Score);
+                            toResult.putExtra("p2",p2Score+1);
+                        }
                         toResult.putExtra("winner","Player"+ winnerResult+ " won!");
                         startActivity(toResult);
+                        if(numHumanPlayers == 1)
+                            break;
                     }
                     else
                     {
@@ -443,15 +530,23 @@ public class Game extends Activity implements OnClickListener {
                             Intent toResult = new Intent(Game.this, Results.class);
                             toResult.putExtra("mode",numHumanPlayers);
                             toResult.putExtra("bo",gameMode);
-                            toResult.putExtra("score","1 : 0");
+                            toResult.putExtra("score","0 : 0");
                             toResult.putExtra("winner", "Draw");
+                            toResult.putExtra("p1",p1Score);
+                            toResult.putExtra("p2",p2Score);
                             startActivity(toResult);
                         }
                     }
+                    buttonSelectTracker = "Choose a number";
+                    whoseTurn.setText(buttonSelectTracker);
                     if(gameStatus == 1)
                         gameStatus = 2;
                     else
                         gameStatus = 1;
+                    if(gameStatus == 2 && numHumanPlayers == 1&&numAITurns <4)//runs only if single player
+                    {
+                        processAITurn();
+                    }
                 }
                 else
                 {
@@ -467,6 +562,7 @@ public class Game extends Activity implements OnClickListener {
                     }
 
                 }
+                pressedNumber = 30;
                 break;
             }
             case R.id.button19: {//Row2Col2
@@ -488,8 +584,20 @@ public class Game extends Activity implements OnClickListener {
                        toResult.putExtra("mode",numHumanPlayers);
                        toResult.putExtra("bo", gameMode);
                        toResult.putExtra("score","1 : 0");
+                       if(gameStatus == 1)
+                       {
+                           toResult.putExtra("p1",p1Score+1);
+                           toResult.putExtra("p2",p2Score);
+                       }
+                       else
+                       {
+                           toResult.putExtra("p1",p1Score);
+                           toResult.putExtra("p2",p2Score+1);
+                       }
                        toResult.putExtra("winner","Player"+ winnerResult+ " won!");
                        startActivity(toResult);
+                       if(numHumanPlayers == 1)
+                           break;
                    }
                    else
                    {
@@ -497,15 +605,23 @@ public class Game extends Activity implements OnClickListener {
                            Intent toResult = new Intent(Game.this, Results.class);
                            toResult.putExtra("mode",numHumanPlayers);
                            toResult.putExtra("bo",gameMode);
-                           toResult.putExtra("score","1 : 0");
+                           toResult.putExtra("score","0 : 0");
                            toResult.putExtra("winner", "Draw");
+                           toResult.putExtra("p1",p1Score);
+                           toResult.putExtra("p2",p2Score);
                            startActivity(toResult);
                        }
                    }
+                    buttonSelectTracker = "Choose a number";
+                    whoseTurn.setText(buttonSelectTracker);
                     if(gameStatus == 1)
                         gameStatus = 2;
                     else
                         gameStatus = 1;
+                    if(gameStatus == 2 && numHumanPlayers == 1&&numAITurns <4)//runs only if single player
+                    {
+                        processAITurn();
+                    }
                 }
                 else
                 {
@@ -521,6 +637,7 @@ public class Game extends Activity implements OnClickListener {
                     }
 
                 }
+                pressedNumber = 30;
                 break;
             }
 
@@ -543,8 +660,20 @@ public class Game extends Activity implements OnClickListener {
                         toResult.putExtra("mode",numHumanPlayers);
                         toResult.putExtra("bo", gameMode);
                         toResult.putExtra("score","1 : 0");
+                        if(gameStatus == 1)
+                        {
+                            toResult.putExtra("p1",p1Score+1);
+                            toResult.putExtra("p2",p2Score);
+                        }
+                        else
+                        {
+                            toResult.putExtra("p1",p1Score);
+                            toResult.putExtra("p2",p2Score+1);
+                        }
                         toResult.putExtra("winner","Player"+ winnerResult+ " won!");
                         startActivity(toResult);
+                        if(numHumanPlayers == 1)
+                            break;
                     }
                     else
                     {
@@ -552,15 +681,23 @@ public class Game extends Activity implements OnClickListener {
                             Intent toResult = new Intent(Game.this, Results.class);
                             toResult.putExtra("mode",numHumanPlayers);
                             toResult.putExtra("bo",gameMode);
-                            toResult.putExtra("score","1 : 0");
+                            toResult.putExtra("score","0 : 0");
                             toResult.putExtra("winner", "Draw");
+                            toResult.putExtra("p1",p1Score);
+                            toResult.putExtra("p2",p2Score);
                             startActivity(toResult);
                         }
                     }
+                    buttonSelectTracker = "Choose a number";
+                    whoseTurn.setText(buttonSelectTracker);
                     if(gameStatus == 1)
                         gameStatus = 2;
                     else
                         gameStatus = 1;
+                    if(gameStatus == 2 && numHumanPlayers == 1&&numAITurns <5)//runs only if single player
+                    {
+                        processAITurn();
+                    }
                 }
                 else
                 {
@@ -569,13 +706,14 @@ public class Game extends Activity implements OnClickListener {
                         buttonSelectTracker = "Please Choose a number first";
                         whoseTurn.setText(buttonSelectTracker);
                     }
-                    if(!((R2C2.getText().toString()).equals("")))
+                    if(!((R3C2.getText().toString()).equals("")))
                     {
                         buttonSelectTracker = "Already filled in, choose another slot";
                         whoseTurn.setText(buttonSelectTracker);
                     }
 
                 }
+                pressedNumber = 30;
                 break;
             }
 
@@ -597,8 +735,20 @@ public class Game extends Activity implements OnClickListener {
                         toResult.putExtra("mode",numHumanPlayers);
                         toResult.putExtra("bo", gameMode);
                         toResult.putExtra("score","1 : 0");
+                        if(gameStatus == 1)
+                        {
+                            toResult.putExtra("p1",p1Score+1);
+                            toResult.putExtra("p2",p2Score);
+                        }
+                        else
+                        {
+                            toResult.putExtra("p1",p1Score);
+                            toResult.putExtra("p2",p2Score+1);
+                        }
                         toResult.putExtra("winner","Player"+ winnerResult+ " won!");
                         startActivity(toResult);
+                        if(numHumanPlayers == 1)
+                            break;
                     }
                     else
                     {
@@ -606,15 +756,23 @@ public class Game extends Activity implements OnClickListener {
                             Intent toResult = new Intent(Game.this, Results.class);
                             toResult.putExtra("mode",numHumanPlayers);
                             toResult.putExtra("bo",gameMode);
-                            toResult.putExtra("score","1 : 0");
+                            toResult.putExtra("score","0 : 0");
                             toResult.putExtra("winner", "Draw");
+                            toResult.putExtra("p1",p1Score);
+                            toResult.putExtra("p2",p2Score);
                             startActivity(toResult);
                         }
                     }
+                    buttonSelectTracker = "Choose a number";
+                    whoseTurn.setText(buttonSelectTracker);
                     if(gameStatus == 1)
                         gameStatus = 2;
                     else
                         gameStatus = 1;
+                    if(gameStatus == 2 && numHumanPlayers == 1&&numAITurns <4)//runs only if single player
+                    {
+                        processAITurn();
+                    }
                 }
                 else
                 {
@@ -630,6 +788,7 @@ public class Game extends Activity implements OnClickListener {
                     }
 
                 }
+                pressedNumber = 30;
                 break;
             }
             case R.id.button18: {//Row2Col3
@@ -650,8 +809,20 @@ public class Game extends Activity implements OnClickListener {
                         toResult.putExtra("mode",numHumanPlayers);
                         toResult.putExtra("bo", gameMode);
                         toResult.putExtra("score","1 : 0");
+                        if(gameStatus == 1)
+                        {
+                            toResult.putExtra("p1",p1Score+1);
+                            toResult.putExtra("p2",p2Score);
+                        }
+                        else
+                        {
+                            toResult.putExtra("p1",p1Score);
+                            toResult.putExtra("p2",p2Score+1);
+                        }
                         toResult.putExtra("winner","Player"+ winnerResult+ " won!");
                         startActivity(toResult);
+                        if(numHumanPlayers == 1)
+                            break;
                     }
                     else
                     {
@@ -659,16 +830,23 @@ public class Game extends Activity implements OnClickListener {
                             Intent toResult = new Intent(Game.this, Results.class);
                             toResult.putExtra("mode",numHumanPlayers);
                             toResult.putExtra("bo",gameMode);
-                            toResult.putExtra("score","1 : 0");
+                            toResult.putExtra("score","0 : 0");
                             toResult.putExtra("winner", "Draw");
+                            toResult.putExtra("p1",p1Score);
+                            toResult.putExtra("p2",p2Score);
                             startActivity(toResult);
                         }
                     }
+                    buttonSelectTracker = "Choose a number";
+                    whoseTurn.setText(buttonSelectTracker);
                     if(gameStatus == 1)
                         gameStatus = 2;
                     else
                         gameStatus = 1;
-
+                    if(gameStatus == 2 && numHumanPlayers == 1&&numAITurns <4)//runs only if single player
+                    {
+                        processAITurn();
+                    }
                 }
                 else
                 {
@@ -684,6 +862,7 @@ public class Game extends Activity implements OnClickListener {
                     }
 
                 }
+                pressedNumber = 30;
                 break;
             }
             case R.id.button23: {//Row3Col3
@@ -704,8 +883,20 @@ public class Game extends Activity implements OnClickListener {
                         toResult.putExtra("mode",numHumanPlayers);
                         toResult.putExtra("bo", gameMode);
                         toResult.putExtra("score","1 : 0");
+                        if(gameStatus == 1)
+                        {
+                            toResult.putExtra("p1",p1Score+1);
+                            toResult.putExtra("p2",p2Score);
+                        }
+                        else
+                        {
+                            toResult.putExtra("p1",p1Score);
+                            toResult.putExtra("p2",p2Score+1);
+                        }
                         toResult.putExtra("winner","Player"+ winnerResult+ " won!");
                         startActivity(toResult);
+                        if(numHumanPlayers == 1)
+                            break;
                     }
                     else
                     {
@@ -715,13 +906,21 @@ public class Game extends Activity implements OnClickListener {
                             toResult.putExtra("bo",gameMode);
                             toResult.putExtra("score","1 : 0");
                             toResult.putExtra("winner", "Draw");
+                            toResult.putExtra("p1",p1Score);
+                            toResult.putExtra("p2",p2Score);
                             startActivity(toResult);
                         }
                     }
+                    buttonSelectTracker = "Choose a number";
+                    whoseTurn.setText(buttonSelectTracker);
                     if(gameStatus == 1)
                         gameStatus = 2;
                     else
                         gameStatus = 1;
+                    if(gameStatus == 2 && numHumanPlayers == 1&&numAITurns <4)//runs only if single player
+                    {
+                        processAITurn();
+                    }
                 }
                 else
                 {
@@ -737,6 +936,7 @@ public class Game extends Activity implements OnClickListener {
                     }
 
                 }
+                pressedNumber = 30;
                 break;
             }
             case R.id.button24:{
@@ -788,5 +988,161 @@ public class Game extends Activity implements OnClickListener {
             eight.setVisibility(View.GONE);
         if(Integer.parseInt(0+nine.getText().toString())== buttonToRemove)
             nine.setVisibility(View.GONE);
+    }
+    public void processAITurn(){
+        Random rand = new Random();
+        int randomNumber = 2*(rand.nextInt(4)+1);
+        String usedIntList = "" + numOne+numTwo+numThree+numFour+numFive+numSix+numSeven+numSeven+numEight+numNine;
+        int testForAvailability = usedIntList.indexOf(""+randomNumber);
+        if(testForAvailability == -1) // checks if number wasn't used yet.
+        {
+            pressedNumber = randomNumber;
+            int onceOnly = 1;//make sure only one slot is processed per turn
+
+            if(numFive == 0&& onceOnly==1)
+            {
+                R2C2.setText(""+randomNumber);
+                removeButton(randomNumber);
+                last = pressedNumber;
+                drawCheck += randomNumber;
+                pressedNumber = 30;
+                processBoard();
+                onceOnly = 0;
+            }
+            if(numTwo == 0 && onceOnly==1)
+            {
+                R2C1.setText(""+randomNumber);
+                removeButton(randomNumber);
+                drawCheck += randomNumber;
+                last = pressedNumber;
+                pressedNumber = 30;
+                processBoard();
+                onceOnly = 0;
+            }
+            if(numEight == 0&& onceOnly==1) {
+                R2C3.setText("" + randomNumber);
+                removeButton(randomNumber);
+                drawCheck += randomNumber;
+                last = pressedNumber;
+                pressedNumber = 30;
+                processBoard();
+                onceOnly = 0;
+            }
+            if(numFour == 0&& onceOnly==1)
+            {
+                R1C2.setText(""+randomNumber);
+                removeButton(randomNumber);
+                drawCheck += randomNumber;
+                last = pressedNumber;
+                pressedNumber = 30;
+                processBoard();
+                onceOnly = 0;
+            }
+            if(numOne == 0 && onceOnly ==1)
+            {
+                R1C1.setText(""+randomNumber);
+                removeButton(randomNumber);
+                last = pressedNumber;
+                drawCheck += randomNumber;
+                pressedNumber = 30;
+                processBoard();
+                onceOnly = 0;
+            }
+            if(numNine == 0&& onceOnly==1)
+            {
+                R3C3.setText(""+randomNumber);
+                removeButton(randomNumber);
+                drawCheck += randomNumber;
+                last = pressedNumber;
+                pressedNumber = 30;
+                processBoard();
+                onceOnly = 0;
+            }
+
+            if(numSix == 0&& onceOnly==1)
+            {
+                R3C2.setText(""+randomNumber);
+                removeButton(randomNumber);
+                drawCheck += randomNumber;
+                last = pressedNumber;
+                pressedNumber = 30;
+                processBoard();
+                onceOnly = 0;
+            }
+            if(numSeven == 0&& onceOnly==1)
+            {
+                R1C3.setText(""+randomNumber);
+                removeButton(randomNumber);
+                last = pressedNumber;
+                drawCheck += randomNumber;
+                pressedNumber = 30;
+                processBoard();
+                onceOnly = 0;
+            }
+            if(numThree == 0&& onceOnly ==1)
+            {
+                R3C1.setText(""+randomNumber);
+                removeButton(randomNumber);
+                last = pressedNumber;
+                drawCheck += randomNumber;
+                pressedNumber = 30;
+                processBoard();
+                onceOnly = 0;
+            }
+            if(end==1) {
+                Intent toResult = new Intent(Game.this, Results.class);
+                int winnerResult = 1;
+                toResult.putExtra("mode", numHumanPlayers);
+                toResult.putExtra("bo", gameMode);
+                toResult.putExtra("score", "1 : 0");
+                if (gameStatus == 1) {
+                    toResult.putExtra("p1", p1Score + 1);
+                    toResult.putExtra("p2", p2Score);
+                } else {
+                    toResult.putExtra("p1", p1Score);
+                    toResult.putExtra("p2", p2Score + 1);
+                }
+                toResult.putExtra("winner", "Player" + winnerResult + " won!");
+                startActivity(toResult);
+            }
+            end = checkEnd(numOne,numTwo,numThree,numFour,numFive,numSix,numSeven,numEight,numNine,last);
+            if(end==1)
+            {
+                Intent toResult = new Intent(Game.this, Results.class);
+                int winnerResult = winner(numOne,numTwo,numThree,numFour,numFive,numSix,numSeven,numEight,numNine, last);
+                if (gameStatus == 2) {
+                    toResult.putExtra("mode",numHumanPlayers);
+                    toResult.putExtra("bo", gameMode);
+                    toResult.putExtra("score","0 : 1");
+                    toResult.putExtra("p1",p1Score);
+                    toResult.putExtra("p2",p2Score+1);
+                    toResult.putExtra("winner","AI won!");
+                    startActivity(toResult);
+                }
+
+            }
+            else
+            {
+                if(drawCheck == 45) {
+                    Intent toResult = new Intent(Game.this, Results.class);
+                    toResult.putExtra("mode",numHumanPlayers);
+                    toResult.putExtra("bo",gameMode);
+                    toResult.putExtra("score","0 : 0");
+                    toResult.putExtra("p1",p1Score);
+                    toResult.putExtra("p2",p2Score);
+                    toResult.putExtra("winner", "Draw");
+                    startActivity(toResult);
+                }
+            }
+            if(gameStatus == 1)
+                gameStatus = 2;
+            else
+                gameStatus = 1;
+            numAITurns++;
+        }
+        else {
+            processAITurn();
+        }
+         // prevents overflow of AI turn processing
     }
 }

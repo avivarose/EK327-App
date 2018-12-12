@@ -10,12 +10,15 @@ import android.widget.TextView;
 public class Results extends Activity implements OnClickListener{
 
     private EditText winner;
+    private EditText scoreBoard;
     private Button backToMenu;
     private Button playAgain;
     private int playerMode;
     private int bestOf;
     private String whoWon;
     private String scoreResult;
+    int p1Score;
+    int p2Score;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -25,12 +28,34 @@ public class Results extends Activity implements OnClickListener{
         bestOf = myIntent.getIntExtra("bo", 0);
         whoWon = myIntent.getStringExtra("winner");
         scoreResult = myIntent.getStringExtra("score");
+        p1Score = myIntent.getIntExtra("p1",0);
+        p2Score = myIntent.getIntExtra("p2",0);
         backToMenu = (Button) findViewById(R.id.button26);
         playAgain = (Button) findViewById(R.id.button25);
+
         backToMenu.setOnClickListener(this);
         playAgain.setOnClickListener(this);
         winner = findViewById(R.id.editText3);
         winner.setText(whoWon);
+        scoreBoard = findViewById(R.id.editText4);
+        scoreBoard.setText(""+p1Score+" : " + p2Score);
+        if((bestOf == 3))
+        {
+            String fix = "Play Again";
+            playAgain.setText(fix);
+            if((p1Score != 2 )&& (p2Score !=2))
+            {   fix = "Play Next Set";
+                playAgain.setText(fix);
+
+            }
+        }
+        else
+        {
+            String fix = "Play Again";
+            playAgain.setText(fix);
+        }
+        winner.setEnabled(false);
+        scoreBoard.setEnabled(false);
 
 
     }
@@ -51,7 +76,27 @@ public class Results extends Activity implements OnClickListener{
                 gameScreen.putExtra("mode",playerMode);
                 gameScreen.putExtra("bo",bestOf);
                 gameScreen.putExtra("score",scoreResult);
-                startActivity(gameScreen);
+                if(bestOf ==1) {
+                    gameScreen.putExtra("p1",0);
+                    gameScreen.putExtra("p2",0);
+                    startActivity(gameScreen);
+
+                }
+                else
+                {
+                    if(p1Score == 2 ||p2Score ==2){
+                        gameScreen.putExtra("p1",0);
+                        gameScreen.putExtra("p2",0);
+                        startActivity(gameScreen);
+                    }
+                    else
+                    {
+                        gameScreen.putExtra("p1",p1Score);
+                        gameScreen.putExtra("p2",p2Score);
+                        startActivity(gameScreen);
+                    }
+
+                }
                 break;
             }
             default: {
